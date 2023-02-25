@@ -1,8 +1,14 @@
+###############################
+#TRAFFIC SPEED PREDICTION USING OBJECT TRACKING
+#################################
+# Import all dependencies
 import cv2
 from tracker import *
 cap = cv2.VideoCapture("./video.mp4")
 import numpy as np
 import time
+
+#use the tracker.py file to measure the Euclidean distance
 #create tracker
 tracker= EuclideanDistTracker()
 #OBJECT DETECTION
@@ -19,7 +25,11 @@ def centroid(x,y,w,h):
     return cx,cy
 detect=[]
 
+
 def check_time(counter):
+    '''
+    Function to check the time taken from start and end of the line
+    '''
     #if (stop-start) >= 10:
     if counter >5 and counter<10:
         print("Decrease speed limit")
@@ -27,9 +37,15 @@ def check_time(counter):
         print("increase speed limit")
         #counter=0
     #return counter
+    
+    
 def check_speed(start,stop):
+    '''
+    Function to calculate speed of the vehicle using the Distance formula
+    '''
     time_of_vehicle= stop-start
     return 100//time_of_vehicle
+
 object_detector= cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=40)
 while True:
     ret, frame = cap.read()
@@ -45,8 +61,6 @@ while True:
     dilatada = cv2.morphologyEx(dilatada,cv2.MORPH_CLOSE,kernel)
     contours,h= cv2.findContours(dilatada,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-    
-            
     
     for (i,c) in enumerate(contours):
         (x,y,w,h) = cv2.boundingRect(c)
@@ -70,6 +84,7 @@ while True:
             detect.remove((x,y))
             print("Vehicle found",counter)
             #counter =check_time(counter)
+            
     print("Vehicle ",counter," Speed ",speed)
     cv2.putText(frame,"VEHICLES "+str(counter),(450,70),cv2.FONT_HERSHEY_PLAIN,2,(0,0,255),5)
     cv2.putText(frame,"Speed "+str(speed)+" m/s",(680,70),cv2.FONT_HERSHEY_PLAIN,2,(0,0,255),5)
@@ -77,7 +92,7 @@ while True:
     
     #cv2.imshow("mask",mask)
     #cv2.imshow("roi",roi)
-    
+# Show the roi using the frame
     cv2.imshow("Frame",frame)
     key=cv2.waitKey(10)
     if key == 27:
